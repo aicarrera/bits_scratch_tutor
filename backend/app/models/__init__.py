@@ -1,0 +1,35 @@
+from app.models.base import Base
+from app.models.tables import (
+    AppUser,
+    Assent,
+    AuditLog,
+    Conversation,
+    Event,
+    ExportLog,
+    Game,
+    GameCategory,
+    GameVersion,
+    Group,
+    LearningSession,
+    Message,
+    SessionFeedback,
+    Student,
+)
+
+__all__ = [
+    "AppUser",
+    "Assent",
+    "AuditLog",
+    "Base",
+    "Conversation",
+    "Event",
+    "ExportLog",
+    "Game",
+    "GameCategory",
+    "GameVersion",
+    "Group",
+    "LearningSession",
+    "Message",
+    "SessionFeedback",
+    "Student",
+]
