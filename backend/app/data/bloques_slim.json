@@ -1,0 +1,239 @@
+{
+  "bloques": [
+    {
+      "id": "movimiento_mover_pasos",
+      "nombre": "Mover pasos",
+      "descripcion": "Mueve al personaje un número de pasos hacia adelante en la dirección a la que está apuntando."
+    },
+    {
+      "id": "movimiento_girar_derecha_grados",
+      "nombre": "Girar a la derecha",
+      "descripcion": "Gira al personaje en sentido horario (hacia la derecha) los grados indicados."
+    },
+    {
+      "id": "movimiento_girar_izquierda_grados",
+      "nombre": "Girar a la izquierda",
+      "descripcion": "Gira al personaje en sentido antihorario (hacia la izquierda) los grados indicados."
+    },
+    {
+      "id": "movimiento_cambiar_x",
+      "nombre": "Cambiar x",
+      "descripcion": "Suma el valor indicado a la posición horizontal (x) actual del personaje."
+    },
+    {
+      "id": "movimiento_cambiar_y",
+      "nombre": "Cambiar y",
+      "descripcion": "Suma el valor indicado a la posición vertical (y) actual del personaje."
+    },
+    {
+      "id": "movimiento_fijar_x",
+      "nombre": "Fijar x",
+      "descripcion": "Establece la posición horizontal (x) del personaje al valor indicado, ignorando la posición previa."
+    },
+    {
+      "id": "movimiento_fijar_y",
+      "nombre": "Fijar y",
+      "descripcion": "Establece la posición vertical (y) del personaje al valor indicado, ignorando la posición previa."
+    },
+    {
+      "id": "movimiento_apuntar_direccion",
+      "nombre": "Apuntar en dirección",
+      "descripcion": "Apunta al personaje en la dirección (en grados) indicada. 0 es arriba, 90 derecha, 180 abajo, -90 izquierda."
+    },
+    {
+      "id": "movimiento_apuntar_hacia",
+      "nombre": "Apuntar hacia",
+      "descripcion": "Apunta al personaje hacia el puntero del ratón u otro objeto seleccionado."
+    },
+    {
+      "id": "control_repetir_veces",
+      "nombre": "Repetir veces",
+      "descripcion": "Repite los bloques que están dentro un número fijo de veces."
+    },
+    {
+      "id": "control_esperar_segundos",
+      "nombre": "Esperar segundos",
+      "descripcion": "Pausa el script durante los segundos indicados antes de continuar."
+    },
+    {
+      "id": "control_por_siempre",
+      "nombre": "Por siempre",
+      "descripcion": "Repite los bloques de su interior sin parar mientras el programa esté corriendo."
+    },
+    {
+      "id": "control_si_entonces",
+      "nombre": "Si entonces",
+      "descripcion": "Ejecuta los bloques internos solo si la condición se cumple. La condición debe ser un bloque hexagonal (booleano)."
+    },
+    {
+      "id": "control_si_entonces_si_no",
+      "nombre": "Si entonces si no",
+      "descripcion": "Ejecuta una rama si la condición se cumple, o la otra rama si no se cumple."
+    },
+    {
+      "id": "control_repetir_hasta_que",
+      "nombre": "Repetir hasta que",
+      "descripcion": "Repite los bloques internos hasta que la condición se cumpla."
+    },
+    {
+      "id": "eventos_tecla_presionada",
+      "nombre": "Al presionar tecla",
+      "descripcion": "Inicia el script cuando se presiona la tecla seleccionada del teclado."
+    },
+    {
+      "id": "eventos_bandera_verde",
+      "nombre": "Al presionar bandera verde",
+      "descripcion": "Inicia el script cuando el usuario hace clic en la bandera verde para arrancar el proyecto."
+    },
+    {
+      "id": "eventos_clic_objeto",
+      "nombre": "Al hacer clic en este objeto",
+      "descripcion": "Inicia el script cuando el usuario hace clic con el ratón sobre este personaje."
+    },
+    {
+      "id": "eventos_al_recibir_mensaje",
+      "nombre": "Al recibir mensaje",
+      "descripcion": "Inicia el script cuando otro objeto envía el mensaje seleccionado."
+    },
+    {
+      "id": "eventos_enviar_mensaje",
+      "nombre": "Enviar mensaje",
+      "descripcion": "Envía un mensaje a todos los objetos sin esperar a que terminen de procesarlo."
+    },
+    {
+      "id": "eventos_enviar_mensaje_y_esperar",
+      "nombre": "Enviar mensaje y esperar",
+      "descripcion": "Envía un mensaje y pausa el script hasta que todos los receptores terminen sus acciones."
+    },
+    {
+      "id": "apariencia_cambiar_disfraz",
+      "nombre": "Cambiar disfraz",
+      "descripcion": "Cambia el aspecto visual del personaje al disfraz seleccionado."
+    },
+    {
+      "id": "apariencia_siguiente_disfraz",
+      "nombre": "Siguiente disfraz",
+      "descripcion": "Avanza al siguiente disfraz de la lista del personaje. Sirve para crear animaciones simples."
+    },
+    {
+      "id": "apariencia_cambiar_fondo",
+      "nombre": "Cambiar fondo",
+      "descripcion": "Cambia el fondo del escenario al fondo seleccionado."
+    },
+    {
+      "id": "apariencia_mostrar",
+      "nombre": "Mostrar",
+      "descripcion": "Hace visible al personaje en el escenario."
+    },
+    {
+      "id": "apariencia_esconder",
+      "nombre": "Esconder",
+      "descripcion": "Oculta al personaje del escenario sin eliminarlo."
+    },
+    {
+      "id": "apariencia_decir_segundos",
+      "nombre": "Decir durante segundos",
+      "descripcion": "Muestra un bocadillo con el texto indicado durante los segundos especificados, luego desaparece."
+    },
+    {
+      "id": "apariencia_pensar_segundos",
+      "nombre": "Pensar durante segundos",
+      "descripcion": "Muestra un bocadillo de pensamiento con el texto indicado durante los segundos especificados."
+    },
+    {
+      "id": "apariencia_decir",
+      "nombre": "Decir",
+      "descripcion": "Muestra un bocadillo con el texto indicado de forma permanente hasta que se cambie o se quite."
+    },
+    {
+      "id": "variables_boton_crear",
+      "nombre": "Crear una variable",
+      "descripcion": "Botón de la interfaz para crear una nueva variable. No es un bloque arrastrable, sino un paso previo necesario para usar"
+    },
+    {
+      "id": "variables_fijar",
+      "nombre": "Fijar variable",
+      "descripcion": "Asigna a la variable seleccionada el valor indicado, reemplazando su valor anterior."
+    },
+    {
+      "id": "variables_cambiar",
+      "nombre": "Cambiar variable",
+      "descripcion": "Suma el valor indicado al valor actual de la variable. Usa números negativos para restar."
+    },
+    {
+      "id": "variables_mostrar",
+      "nombre": "Mostrar variable",
+      "descripcion": "Muestra el valor de la variable en el escenario en una pequeña etiqueta."
+    },
+    {
+      "id": "operadores_mayor_que",
+      "nombre": "Mayor que",
+      "descripcion": "Devuelve verdadero si el primer valor es mayor que el segundo."
+    },
+    {
+      "id": "operadores_menor_que",
+      "nombre": "Menor que",
+      "descripcion": "Devuelve verdadero si el primer valor es menor que el segundo."
+    },
+    {
+      "id": "operadores_igual_a",
+      "nombre": "Igual a",
+      "descripcion": "Devuelve verdadero si los dos valores son iguales. Funciona con números y con texto."
+    },
+    {
+      "id": "operadores_numero_aleatorio",
+      "nombre": "Número aleatorio",
+      "descripcion": "Devuelve un número entero al azar entre los dos valores indicados (ambos incluidos)."
+    },
+    {
+      "id": "operadores_suma",
+      "nombre": "Suma",
+      "descripcion": "Devuelve la suma de los dos valores indicados."
+    },
+    {
+      "id": "operadores_resta",
+      "nombre": "Resta",
+      "descripcion": "Devuelve la resta del segundo valor al primero."
+    },
+    {
+      "id": "operadores_y",
+      "nombre": "Y lógico",
+      "descripcion": "Devuelve verdadero solo si las dos condiciones se cumplen al mismo tiempo."
+    },
+    {
+      "id": "sensores_tocando",
+      "nombre": "Tocando objeto",
+      "descripcion": "Devuelve verdadero si el personaje está tocando el objeto, el borde o el puntero del ratón."
+    },
+    {
+      "id": "sensores_tocando_color",
+      "nombre": "Tocando color",
+      "descripcion": "Devuelve verdadero si el personaje está tocando el color indicado en el escenario."
+    },
+    {
+      "id": "sensores_tecla_presionada",
+      "nombre": "Tecla presionada (sensor)",
+      "descripcion": "Devuelve verdadero si la tecla seleccionada está siendo presionada en este momento. A diferencia del evento, este se usa"
+    },
+    {
+      "id": "sensores_posicion_x_raton",
+      "nombre": "Posición x del ratón",
+      "descripcion": "Devuelve la posición horizontal (x) actual del puntero del ratón en el escenario."
+    },
+    {
+      "id": "sensores_posicion_y_raton",
+      "nombre": "Posición y del ratón",
+      "descripcion": "Devuelve la posición vertical (y) actual del puntero del ratón en el escenario."
+    },
+    {
+      "id": "sonido_iniciar_sonido",
+      "nombre": "Iniciar sonido",
+      "descripcion": "Inicia la reproducción del sonido seleccionado y continúa con el siguiente bloque sin esperar a que termine."
+    },
+    {
+      "id": "sonido_tocar_sonido_hasta_que_termine",
+      "nombre": "Tocar sonido hasta que termine",
+      "descripcion": "Reproduce el sonido seleccionado y pausa el script hasta que el sonido termine de sonar."
+    }
+  ]
+}
