@@ -26,6 +26,4 @@ def settings() -> Settings:
         database_url="sqlite+aiosqlite:///:memory:",
         llm_mode="mock",
         admin_finish_code="99999",
-        auto_create_tables=False,
-        seed_demo_data=False,
     )

@@ -7,13 +7,18 @@ Aplicación separada en frontend React/Vite y backend FastAPI para guardar sesio
 ```bash
 cd backend
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# macOS / Linux
+source .venv/bin/activate
+# Windows PowerShell
+# .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-copy .env.example .env
+cp .env.example .env
+python scripts/create_tables.py
+python scripts/seed_initial_data.py  # opcional: carga catalogo y datos demo
 python -m uvicorn app.main:app --reload
 ```
 
-Por defecto usa SQLite local para desarrollo y siembra códigos demo como `tigre-azul-7`. Para PostgreSQL/Supabase configura `DATABASE_URL` en `backend/.env` y ejecuta Alembic o deja `AUTO_CREATE_TABLES=true` solo para el primer arranque controlado.
+La API ya no crea tablas ni siembra datos al arrancar. `scripts/create_tables.py` aplica las migraciones de Alembic y `scripts/seed_initial_data.py` carga datos iniciales idempotentes como `tigre-azul-7`. Si dejas `DATABASE_URL` vacío, el backend usa SQLite local en `backend/creabits_dev.db`. Para PostgreSQL/Supabase configura `DATABASE_URL` en `backend/.env` y ejecuta esos mismos scripts antes de levantar la API.
 
 ## Frontend
 

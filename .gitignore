@@ -33,3 +33,4 @@ backend/*.db
 *.sw?
 .env
 .env.*
+!backend/.env.example
