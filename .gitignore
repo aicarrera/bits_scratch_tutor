@@ -11,6 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+backend/creabits_dev.db
+backend/*.db
 
 # Editor directories and files
 .vscode/*
@@ -24,3 +33,6 @@ dist-ssr
 *.sw?
 .env
 .env.*
+
+
+*.md
