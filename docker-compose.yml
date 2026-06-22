@@ -1,38 +1,26 @@
+# Producción: frontend + backend con Supabase como base de datos externa.
 services:
 
-  # Base de datos PostgreSQL — datos persisten en volumen nombrado
-  db:
-    image: postgres:17
-    environment:
-      POSTGRES_DB: creabits
-      POSTGRES_USER: creabits
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U creabits -d creabits"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    ports:
-      - "127.0.0.1:5432:5432"
-    restart: unless-stopped
-
-  # API FastAPI — corre migraciones y seed antes de arrancar
+  # API FastAPI — espera DB, corre migraciones y arranca
   backend:
     build:
       context: ./backend
     environment:
-      DATABASE_URL: postgresql+asyncpg://creabits:${DB_PASSWORD}@db:5432/creabits
+      DATABASE_URL: ${DATABASE_URL}
       LLM_MODE: ${LLM_MODE:-mock}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-google/gemini-2.5-flash}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
       ADMIN_FINISH_CODE: ${ADMIN_FINISH_CODE:-99999}
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   # Frontend React servido por nginx, con proxy /api/ → backend
   frontend:
@@ -43,9 +31,6 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
-
-volumes:
-  # Volumen nombrado: sobrevive docker compose down, solo se borra con down -v
-  postgres_data:
