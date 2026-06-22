@@ -3,17 +3,25 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import { BitRobot } from "../components/BitRobot";
 import { Header } from "../components/Header";
-import type { BloqueSugerido, ChatMessage, Conversation, Game, LearningSession, Student } from "../types/api";
+import type {
+  BloqueSugerido,
+  ChatMessage,
+  Conversation,
+  Game,
+  GameHistoryItem,
+  Student,
+  StudentGameHistory,
+} from "../types/api";
 
 type ChatProps = {
   student: Student;
-  session: LearningSession;
+  sessionId: string;
   game: Game;
   conversation: Conversation;
   onConversationUpdated: (conversation: Conversation) => void;
   onBack: () => void;
-  onFinished: (session: LearningSession) => void;
-  onAbandoned: (session: LearningSession) => void;
+  onFinished: () => void;
+  onAbandoned: () => void;
 };
 
 const FASE_LABELS: Record<string, string> = {
@@ -31,6 +39,16 @@ const FASE_COLORS: Record<string, string> = {
   responder: "",
   explorar: "bg-blue-100 text-blue-700",
 };
+
+const ORDINALS = ["Primera", "Segunda", "Tercera", "Cuarta", "Quinta", "Sexta", "Séptima", "Octava", "Novena", "Décima"];
+
+function ordinalLabel(n: number): string {
+  return n <= 10 ? `${ORDINALS[n - 1]} vez` : `${n}.ª vez`;
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+}
 
 function BlockCard({ bloque }: { bloque: BloqueSugerido }) {
   const [imgError, setImgError] = useState(false);
@@ -88,9 +106,136 @@ function TutorMessage({ message }: { message: ChatMessage }) {
   );
 }
 
+function HistoryPanel({
+  student,
+  currentGameId,
+  onClose,
+}: {
+  student: Student;
+  currentGameId: string;
+  onClose: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<StudentGameHistory | null>(null);
+  const [expandedGame, setExpandedGame] = useState<string | null>(currentGameId);
+  const [expandedCompletion, setExpandedCompletion] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .getGameHistory(student.id)
+      .then((result) => setData(result))
+      .catch(() => setData({ historial: [] }))
+      .finally(() => setLoading(false));
+  }, [student.id]);
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Panel header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b-2 border-gray-100 bg-indigo-50 shrink-0">
+        <span className="text-xs font-bold text-indigo-700">📜 Historial de juegos</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">
+          ✕
+        </button>
+      </div>
+
+      {/* Panel content */}
+      <div className="flex-1 overflow-y-auto p-2">
+        {loading ? (
+          <p className="text-center text-gray-400 text-xs py-6 animate-pulse">Cargando...</p>
+        ) : !data || data.historial.length === 0 ? (
+          <div className="text-center py-8 px-3">
+            <div className="text-3xl mb-2">🏆</div>
+            <p className="text-gray-400 text-xs">Aún no has terminado ningún juego.</p>
+            <p className="text-gray-300 text-[10px] mt-1">Los juegos completados con tu profe aparecerán aquí.</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {data.historial.map((item: GameHistoryItem) => (
+              <div key={item.game_id} className="border border-gray-100 rounded-lg overflow-hidden">
+                {/* Game row */}
+                <button
+                  onClick={() => setExpandedGame(expandedGame === item.game_id ? null : item.game_id)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 transition ${
+                    item.game_id === currentGameId ? "bg-indigo-50" : "bg-white"
+                  }`}
+                >
+                  <span className="text-base shrink-0">{item.game_icono ?? "🎮"}</span>
+                  <span className="flex-1 text-xs font-semibold text-gray-700 truncate">{item.game_titulo}</span>
+                  <span className="text-[10px] text-indigo-500 shrink-0 font-medium">
+                    {item.completions.length}✓
+                  </span>
+                  <span className="text-gray-400 text-xs shrink-0">
+                    {expandedGame === item.game_id ? "▾" : "▸"}
+                  </span>
+                </button>
+
+                {/* Completions list */}
+                {expandedGame === item.game_id && (
+                  <div className="bg-gray-50 border-t border-gray-100">
+                    {item.completions.map((completion) => (
+                      <div key={completion.sesion_id} className="border-b border-gray-100 last:border-0">
+                        {/* Completion row */}
+                        <button
+                          onClick={() =>
+                            setExpandedCompletion(
+                              expandedCompletion === completion.sesion_id ? null : completion.sesion_id
+                            )
+                          }
+                          className="w-full flex items-center gap-2 px-4 py-1.5 text-left hover:bg-indigo-50 transition"
+                        >
+                          <span className="text-[10px] font-semibold text-indigo-600 flex-1">
+                            {ordinalLabel(completion.orden)}
+                          </span>
+                          {completion.completado_en && (
+                            <span className="text-[10px] text-gray-400">
+                              {formatDate(completion.completado_en)}
+                            </span>
+                          )}
+                          <span className="text-gray-400 text-xs">
+                            {expandedCompletion === completion.sesion_id ? "▾" : "▸"}
+                          </span>
+                        </button>
+
+                        {/* Messages from that completion */}
+                        {expandedCompletion === completion.sesion_id && (
+                          <div className="max-h-56 overflow-y-auto px-3 pb-2 space-y-1 bg-white border-t border-indigo-100">
+                            <p className="text-[9px] text-gray-400 pt-2 pb-1 font-semibold uppercase tracking-wide">
+                              Conversación — {ordinalLabel(completion.orden)}
+                            </p>
+                            {completion.conversation.mensajes.map((msg) => (
+                              <div
+                                key={msg.id}
+                                className={`flex ${msg.rol === "nino" ? "justify-end" : "justify-start"}`}
+                              >
+                                <div
+                                  className={`max-w-[90%] px-2 py-1 rounded text-[10px] leading-snug ${
+                                    msg.rol === "nino"
+                                      ? "bg-[#FF8C42]/20 text-orange-800"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {msg.contenido}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function Chat({
   student,
-  session,
+  sessionId,
   game,
   conversation,
   onConversationUpdated,
@@ -106,6 +251,7 @@ export function Chat({
   const [finishError, setFinishError] = useState("");
   const [finishLoading, setFinishLoading] = useState(false);
   const [abandonLoading, setAbandonLoading] = useState(false);
+  const [historialOpen, setHistorialOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -117,20 +263,45 @@ export function Chat({
     if (!text || typing) return;
     setInput("");
     setTyping(true);
+
+    const tempId = `optimistic-${Date.now()}`;
+    const optimisticChild: ChatMessage = {
+      id: tempId,
+      conversacion_id: conversation.id,
+      sesion_id: sessionId,
+      estudiante_id: student.id,
+      rol: "nino",
+      contenido: text,
+      orden_mensaje: messages.length + 1,
+      creado_en: new Date().toISOString(),
+      proveedor_llm: null,
+      modelo_llm: null,
+      prompt_version: null,
+      input_tokens: null,
+      output_tokens: null,
+      metadata: {},
+      fase: null,
+      bloques_sugeridos: [],
+    };
+    setMessages((prev) => [...prev, optimisticChild]);
+
     try {
       const exchange = await api.sendMessage(conversation.id, text);
       const updatedMessages = [...messages, exchange.mensaje_nino, exchange.mensaje_tutor];
-      setMessages(updatedMessages);
+      setMessages((prev) => {
+        const base = prev.filter((m) => m.id !== tempId);
+        return [...base, exchange.mensaje_nino, exchange.mensaje_tutor];
+      });
       onConversationUpdated({ ...conversation, mensajes: updatedMessages });
     } catch {
       const fallback: ChatMessage = {
         id: `local-error-${Date.now()}`,
         conversacion_id: conversation.id,
-        sesion_id: session.id,
+        sesion_id: sessionId,
         estudiante_id: student.id,
         rol: "tutor",
         contenido: "No pude guardar ese mensaje. Pídele ayuda a tu profe y probemos otra vez.",
-        orden_mensaje: messages.length + 1,
+        orden_mensaje: messages.length + 2,
         creado_en: new Date().toISOString(),
         proveedor_llm: "frontend",
         modelo_llm: null,
@@ -141,7 +312,10 @@ export function Chat({
         fase: null,
         bloques_sugeridos: [],
       };
-      setMessages((current) => [...current, fallback]);
+      setMessages((prev) => {
+        const base = prev.filter((m) => m.id !== tempId);
+        return [...base, optimisticChild, fallback];
+      });
     } finally {
       setTyping(false);
     }
@@ -151,9 +325,9 @@ export function Chat({
     setFinishError("");
     setFinishLoading(true);
     try {
-      const closedSession = await api.finishSession(session.id, adminCode.trim());
+      await api.finishSession(sessionId, adminCode.trim());
       setFinishOpen(false);
-      onFinished(closedSession);
+      onFinished();
     } catch (caughtError) {
       setFinishError(caughtError instanceof Error ? caughtError.message : "Código de profesor inválido.");
     } finally {
@@ -164,11 +338,10 @@ export function Chat({
   const handleExit = async () => {
     setAbandonLoading(true);
     try {
-      const abandonedSession = await api.abandonSession(session.id);
-      onAbandoned(abandonedSession);
+      await api.abandonSession(sessionId);
+      onAbandoned();
     } catch {
-      // Even if the API call fails, redirect to feedback
-      onAbandoned(session);
+      onAbandoned();
     } finally {
       setAbandonLoading(false);
     }
@@ -176,41 +349,73 @@ export function Chat({
 
   return (
     <div className="min-h-screen flex flex-col h-screen">
-      <Header code={student.codigo_publico} game={game} onExit={() => setFinishOpen(true)} showBack onBack={onBack} />
+      <Header code={student.codigo_publico} game={game} onExit={() => setFinishOpen(true)} />
 
-      <div className="flex-1 overflow-y-auto chat-messages px-4 py-6">
-        <div className="max-w-3xl mx-auto space-y-4">
-          {messages.map((message) => {
-            if (message.rol === "nino") {
-              return (
-                <div key={message.id} className="flex gap-3 justify-end fade-in">
-                  <div className="max-w-[75%] px-5 py-3 rounded-lg shadow-sm bg-[#FF8C42] text-white">
-                    <p className="text-base leading-relaxed">{message.contenido}</p>
-                  </div>
-                  <div className="shrink-0 w-12 h-12 rounded-full bg-[#FF8C42] flex items-center justify-center text-white font-bold text-lg shadow">
-                    {student.codigo_publico.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-              );
-            }
-            return <TutorMessage key={message.id} message={message} />;
-          })}
-
-          {typing && (
-            <div className="flex gap-3 justify-start fade-in">
-              <div className="shrink-0">
-                <BitRobot size={48} animated={false} mood="thinking" />
-              </div>
-              <div className="bg-white border-2 border-gray-100 px-5 py-4 rounded-lg">
-                <div className="flex gap-1.5">
-                  <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
-                  <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
-                  <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
-                </div>
-              </div>
-            </div>
+      <div className="flex-1 flex overflow-hidden">
+        {/* LEFT HISTORY SIDEBAR */}
+        <div
+          className={`${
+            historialOpen ? "w-72" : "w-10"
+          } shrink-0 border-r-2 border-gray-100 bg-white transition-all duration-200 flex flex-col overflow-hidden`}
+        >
+          {historialOpen ? (
+            <HistoryPanel
+              student={student}
+              currentGameId={game.id}
+              onClose={() => setHistorialOpen(false)}
+            />
+          ) : (
+            <button
+              onClick={() => setHistorialOpen(true)}
+              title="Ver historial de juegos completados"
+              className="flex-1 flex flex-col items-center justify-center gap-1 hover:bg-indigo-50 transition text-gray-400 hover:text-indigo-600"
+            >
+              <span className="text-lg">📜</span>
+              <span
+                className="text-[9px] font-bold tracking-wide text-gray-400 hover:text-indigo-600"
+                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+              >
+                Historial
+              </span>
+            </button>
           )}
-          <div ref={messagesEndRef} />
+        </div>
+
+        {/* MAIN CHAT AREA */}
+        <div className="flex-1 overflow-y-auto chat-messages px-4 py-6">
+          <div className="max-w-3xl mx-auto space-y-4">
+            {messages.map((message) => {
+              if (message.rol === "nino") {
+                return (
+                  <div key={message.id} className="flex gap-3 justify-end fade-in">
+                    <div className="max-w-[75%] px-5 py-3 rounded-lg shadow-sm bg-[#FF8C42] text-white">
+                      <p className="text-base leading-relaxed">{message.contenido}</p>
+                    </div>
+                    <div className="shrink-0 w-12 h-12 rounded-full bg-[#FF8C42] flex items-center justify-center text-white font-bold text-lg shadow">
+                      {student.codigo_publico.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                );
+              }
+              return <TutorMessage key={message.id} message={message} />;
+            })}
+
+            {typing && (
+              <div className="flex gap-3 justify-start fade-in">
+                <div className="shrink-0">
+                  <BitRobot size={48} animated={false} mood="thinking" />
+                </div>
+                <div className="bg-white border-2 border-gray-100 px-5 py-4 rounded-lg">
+                  <div className="flex gap-1.5">
+                    <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
+                    <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
+                    <div className="typing-dot w-2 h-2 bg-[#2E9DF7] rounded-full" />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
@@ -236,7 +441,10 @@ export function Chat({
           </button>
         </div>
         <div className="max-w-3xl mx-auto mt-2 flex justify-center gap-6">
-          <button onClick={onBack} className="text-xs text-gray-500 hover:text-gray-700 transition">
+          <button
+            onClick={onBack}
+            className="text-xs text-gray-500 hover:text-gray-700 transition"
+          >
             ← Cambiar de juego
           </button>
           <button

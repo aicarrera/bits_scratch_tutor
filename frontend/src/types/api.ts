@@ -94,3 +94,29 @@ export type MessageExchange = {
   mensaje_nino: ChatMessage;
   mensaje_tutor: ChatMessage;
 };
+
+export type GameCompletionEntry = {
+  orden: number;
+  sesion_id: string;
+  completado_en: string | null;
+  conversation: Conversation;
+};
+
+export type GameHistoryItem = {
+  game_id: string;
+  game_titulo: string;
+  game_icono: string | null;
+  completions: GameCompletionEntry[];
+};
+
+export type StudentGameHistory = {
+  historial: GameHistoryItem[];
+};
+
+export type GameOpenResult = {
+  sesion_id: string | null;
+  estado_sesion: string | null;
+  conversation: Conversation | null;
+  ya_completado: boolean;
+  historial_completado: Conversation | null;
+};

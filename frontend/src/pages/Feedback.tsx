@@ -3,11 +3,12 @@ import { useState } from "react";
 import { api } from "../api/client";
 import { BitRobot } from "../components/BitRobot";
 import { Header } from "../components/Header";
-import type { LearningSession, Student } from "../types/api";
+import type { Student } from "../types/api";
 
 type FeedbackProps = {
   student: Student;
-  session: LearningSession;
+  sessionId: string;
+  onPlayAgain: () => void;
   onDone: () => void;
 };
 
@@ -19,7 +20,7 @@ const feedbackOptions = [
   { nivel: 5, icon: "😊", label: "Muy bien", color: "bg-green-50 hover:bg-green-100" },
 ] as const;
 
-export function Feedback({ student, session, onDone }: FeedbackProps) {
+export function Feedback({ student, sessionId, onPlayAgain, onDone }: FeedbackProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ export function Feedback({ student, session, onDone }: FeedbackProps) {
     setLoading(true);
     setError("");
     try {
-      await api.submitFeedback(session.id, nivel, etiqueta);
+      await api.submitFeedback(sessionId, nivel, etiqueta);
       setSubmitted(true);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "No se pudo guardar tu respuesta.");
@@ -76,9 +77,20 @@ export function Feedback({ student, session, onDone }: FeedbackProps) {
               <p className="text-gray-700">¡Gracias por contarme! Tu respuesta quedó guardada.</p>
             </div>
           )}
-          <button onClick={onDone} className="w-full py-3 bg-[#2E9DF7] hover:bg-[#1a8de8] text-white font-bold rounded-lg shadow-md transition">
-            Cerrar sesión
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={onPlayAgain}
+              className="py-3 bg-[#7EC242] hover:bg-[#6ab038] text-white font-bold rounded-lg shadow-md transition"
+            >
+              🎮 Jugar otro juego
+            </button>
+            <button
+              onClick={onDone}
+              className="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition"
+            >
+              🚪 Salir
+            </button>
+          </div>
         </div>
       </div>
     </div>

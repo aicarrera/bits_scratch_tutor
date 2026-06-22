@@ -68,6 +68,9 @@ class Student(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
 
     codigo_publico: Mapped[str] = mapped_column(Text, unique=True, nullable=False, index=True)
     grupo_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("grupos.id", ondelete="SET NULL"))
+    nombre_completo: Mapped[str | None] = mapped_column(Text)
+    email_referencia: Mapped[str | None] = mapped_column(Text)
+    notas_investigador: Mapped[str | None] = mapped_column(Text)
     edad: Mapped[int | None] = mapped_column(SmallInteger)
     genero_opcion: Mapped[str | None] = mapped_column(String(32))
     experiencia_scratch: Mapped[str | None] = mapped_column(String(32))

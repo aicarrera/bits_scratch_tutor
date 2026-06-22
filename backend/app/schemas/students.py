@@ -29,6 +29,9 @@ class StudentCodeResponse(BaseModel):
 class StudentCreateRequest(BaseModel):
     codigo_publico: str = Field(min_length=1, max_length=80)
     grupo_id: uuid.UUID | None = None
+    nombre_completo: str | None = None
+    email_referencia: str | None = None
+    notas_investigador: str | None = None
     edad: int | None = Field(default=None, ge=8, le=10)
     genero_opcion: str | None = None
     experiencia_scratch: str | None = None

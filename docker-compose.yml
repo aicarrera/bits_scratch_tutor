@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    ports:
+      - "127.0.0.1:5432:5432"
     restart: unless-stopped
 
   # API FastAPI — corre migraciones y seed antes de arrancar

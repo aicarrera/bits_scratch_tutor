@@ -1,8 +1,8 @@
 import uuid
-from sqlalchemy import func, select
+from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Conversation, Event, Message
+from app.models import Conversation, Event, LearningSession, Message
 
 
 class ConversationsRepository:
@@ -20,6 +20,59 @@ class ConversationsRepository:
                 Conversation.estado == "activa",
             )
         )
+
+    async def get_resumable_by_student_game(
+        self, student_id: uuid.UUID, game_id: str
+    ) -> Conversation | None:
+        """Find the most recent non-closed conversation for a student+game pair."""
+        return await self.db.scalar(
+            select(Conversation)
+            .join(LearningSession, Conversation.sesion_id == LearningSession.id)
+            .where(
+                Conversation.estudiante_id == student_id,
+                Conversation.juego_id == game_id,
+                Conversation.estado != "cerrada",
+                LearningSession.estado != "cerrada",
+            )
+            .order_by(Conversation.inicio_en.desc())
+        )
+
+    async def get_completed_by_student_game(
+        self, student_id: uuid.UUID, game_id: str
+    ) -> Conversation | None:
+        """Find the most recent conversation for a student+game where the teacher closed the session."""
+        return await self.db.scalar(
+            select(Conversation)
+            .join(LearningSession, Conversation.sesion_id == LearningSession.id)
+            .where(
+                Conversation.estudiante_id == student_id,
+                Conversation.juego_id == game_id,
+                LearningSession.estado == "cerrada",
+            )
+            .order_by(Conversation.inicio_en.desc())
+        )
+
+    async def get_all_completions_for_student(
+        self, student_id: uuid.UUID
+    ) -> list[Row[tuple[Conversation, LearningSession]]]:
+        """All conversations where the teacher closed the session, ordered by game then finish time."""
+        result = await self.db.execute(
+            select(Conversation, LearningSession)
+            .join(LearningSession, Conversation.sesion_id == LearningSession.id)
+            .where(
+                Conversation.estudiante_id == student_id,
+                LearningSession.estado == "cerrada",
+            )
+            .order_by(Conversation.juego_id, LearningSession.fin_en.asc())
+        )
+        return list(result.all())
+
+    async def reactivate_conversation(self, conversation: Conversation) -> Conversation:
+        conversation.estado = "activa"
+        conversation.fin_en = None
+        await self.db.commit()
+        await self.db.refresh(conversation)
+        return conversation
 
     async def create(self, conversation: Conversation, initial_message: Message) -> Conversation:
         self.db.add(conversation)

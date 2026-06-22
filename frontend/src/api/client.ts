@@ -1,4 +1,4 @@
-import type { Conversation, GamesCatalog, LearningSession, MessageExchange, Student } from "../types/api";
+import type { Conversation, GameOpenResult, GamesCatalog, LearningSession, MessageExchange, Student, StudentGameHistory } from "../types/api";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
@@ -57,6 +57,17 @@ export const api = {
       method: "POST",
       body: { sesion_id: sessionId, juego_id: gameId },
     });
+  },
+
+  openGame(studentId: string, gameId: string, forceNew = false): Promise<GameOpenResult> {
+    return request<GameOpenResult>("/api/v1/conversations/open", {
+      method: "POST",
+      body: { student_id: studentId, game_id: gameId, force_new: forceNew },
+    });
+  },
+
+  getGameHistory(studentId: string): Promise<StudentGameHistory> {
+    return request<StudentGameHistory>(`/api/v1/conversations/history/${studentId}`);
   },
 
   sendMessage(conversationId: string, contenido: string): Promise<MessageExchange> {

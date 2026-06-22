@@ -1,31 +1,17 @@
-import { useState } from "react";
 
-import { api } from "../api/client";
 import { BitRobot } from "../components/BitRobot";
 import { Header } from "../components/Header";
-import type { LearningSession, Student } from "../types/api";
+import type { Student } from "../types/api";
 
 type AssentProps = {
   student: Student;
-  onAccepted: (session: LearningSession) => void;
+  onAccepted: () => void;
   onRejected: () => void;
 };
 
 export function Assent({ student, onAccepted, onRejected }: AssentProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleAccept = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const session = await api.createSession(student.id);
-      onAccepted(session);
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "No se pudo crear la sesión.");
-    } finally {
-      setLoading(false);
-    }
+  const handleAccept = () => {
+    onAccepted();
   };
 
   return (
@@ -64,18 +50,16 @@ export function Assent({ student, onAccepted, onRejected }: AssentProps) {
               </p>
             </div>
           </div>
-          {error && <p className="text-[#E74C3C] text-sm mt-4 text-center fade-in">{error}</p>}
           <p className="text-center mt-8 text-gray-800 font-semibold">¿Quieres empezar?</p>
           <div className="grid grid-cols-2 gap-3 mt-4">
             <button onClick={onRejected} className="py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition">
               No, mejor no
             </button>
             <button
-              onClick={() => void handleAccept()}
-              disabled={loading}
-              className="py-4 bg-[#7EC242] hover:bg-[#6ab038] disabled:bg-gray-400 text-white font-bold rounded-lg shadow-md transition transform hover:scale-[1.02]"
+              onClick={handleAccept}
+              className="py-4 bg-[#7EC242] hover:bg-[#6ab038] text-white font-bold rounded-lg shadow-md transition transform hover:scale-[1.02]"
             >
-              {loading ? "Creando sesión..." : "¡Sí, vamos! ✨"}
+              ¡Sí, vamos! ✨
             </button>
           </div>
         </div>

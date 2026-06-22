@@ -81,6 +81,21 @@ class SessionsRepository:
         await self.db.refresh(session)
         return session
 
+    async def reactivate(self, session: LearningSession) -> LearningSession:
+        session.estado = "activa"
+        session.fin_en = None
+        self.db.add(
+            Event(
+                estudiante_id=session.estudiante_id,
+                sesion_id=session.id,
+                tipo_evento="session_reactivated",
+                payload={"from_estado": "abandonada"},
+            )
+        )
+        await self.db.commit()
+        await self.db.refresh(session)
+        return session
+
     async def save_feedback(self, feedback: SessionFeedback) -> SessionFeedback:
         existing = await self.db.scalar(select(SessionFeedback).where(SessionFeedback.sesion_id == feedback.sesion_id))
         if existing is not None:

@@ -30,6 +30,12 @@ class MessageResponse(BaseModel):
     bloques_sugeridos: list[BloqueSugerido] = Field(default_factory=list)
 
 
+class GameOpenRequest(BaseModel):
+    student_id: uuid.UUID
+    game_id: str
+    force_new: bool = False
+
+
 class ConversationCreateRequest(BaseModel):
     sesion_id: uuid.UUID
     juego_id: str
@@ -56,3 +62,29 @@ class MessageCreateRequest(BaseModel):
 class MessageExchangeResponse(BaseModel):
     mensaje_nino: MessageResponse
     mensaje_tutor: MessageResponse
+
+
+class GameOpenResponse(BaseModel):
+    sesion_id: uuid.UUID | None = None
+    estado_sesion: str | None = None
+    conversation: ConversationResponse | None = None
+    ya_completado: bool = False
+    historial_completado: ConversationResponse | None = None
+
+
+class GameCompletionEntry(BaseModel):
+    orden: int
+    sesion_id: uuid.UUID
+    completado_en: datetime | None
+    conversation: ConversationResponse
+
+
+class GameHistoryItem(BaseModel):
+    game_id: str
+    game_titulo: str
+    game_icono: str | None
+    completions: list[GameCompletionEntry]
+
+
+class StudentGameHistoryResponse(BaseModel):
+    historial: list[GameHistoryItem]

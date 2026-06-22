@@ -9,12 +9,33 @@ from app.llm.factory import build_llm
 from app.schemas.conversations import (
     ConversationCreateRequest,
     ConversationResponse,
+    GameOpenRequest,
+    GameOpenResponse,
     MessageCreateRequest,
     MessageExchangeResponse,
+    StudentGameHistoryResponse,
 )
 from app.services.conversations import ConversationsService
 
 router = APIRouter()
+
+
+@router.post("/open", response_model=GameOpenResponse)
+async def open_or_resume_game(
+    payload: GameOpenRequest,
+    db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> GameOpenResponse:
+    return await ConversationsService(db, build_llm(settings)).open_or_resume(payload.student_id, payload.game_id, payload.force_new)
+
+
+@router.get("/history/{student_id}", response_model=StudentGameHistoryResponse)
+async def get_student_game_history(
+    student_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> StudentGameHistoryResponse:
+    return await ConversationsService(db, build_llm(settings)).get_student_game_history(student_id)
 
 
 @router.post("/", response_model=ConversationResponse)

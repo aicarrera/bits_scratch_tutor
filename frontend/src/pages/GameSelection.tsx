@@ -4,20 +4,94 @@ import { api } from "../api/client";
 import { BitRobot } from "../components/BitRobot";
 import { GameCard } from "../components/GameCard";
 import { Header } from "../components/Header";
-import type { Conversation, Game, GameCategory, GamesCatalog, LearningSession, Student } from "../types/api";
+import type { ChatMessage, Conversation, Game, GameCategory, GamesCatalog, Student } from "../types/api";
 
 type GameSelectionProps = {
   student: Student;
-  session: LearningSession;
-  onSelected: (game: Game, conversation: Conversation) => void;
+  onSelected: (game: Game, sessionId: string, conversation: Conversation) => void;
 };
 
-export function GameSelection({ student, session, onSelected }: GameSelectionProps) {
+function CompletedModal({
+  game,
+  historial,
+  onRestart,
+  onCancel,
+}: {
+  game: Game;
+  historial: Conversation;
+  onRestart: () => void;
+  onCancel: () => void;
+}) {
+  const [showHistory, setShowHistory] = useState(false);
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full fade-in">
+        <div className="flex justify-center mb-4">
+          <BitRobot size={80} mood="happy" />
+        </div>
+        <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">¡Ya terminaste este juego! 🏆</h3>
+        <p className="text-center text-gray-600 mb-5">
+          Completaste <span className="font-semibold text-[#2E9DF7]">{game.titulo}</span> con tu profe.
+          ¿Quieres volver a jugarlo o ver el historial de tu conversación?
+        </p>
+
+        {showHistory && (
+          <div className="border-2 border-gray-100 rounded-lg p-3 mb-5 max-h-64 overflow-y-auto bg-gray-50 space-y-2">
+            {historial.mensajes.map((msg: ChatMessage) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.rol === "nino" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[80%] px-4 py-2 rounded-lg text-sm ${
+                    msg.rol === "nino"
+                      ? "bg-[#FF8C42] text-white"
+                      : "bg-white border border-gray-200 text-gray-800"
+                  }`}
+                >
+                  {msg.contenido}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowHistory((v) => !v)}
+            className="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition"
+          >
+            {showHistory ? "Ocultar historial" : "📜 Ver historial de la conversación"}
+          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={onCancel}
+              className="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onRestart}
+              className="py-3 bg-[#7EC242] hover:bg-[#6ab038] text-white font-bold rounded-lg shadow-md transition"
+            >
+              🔄 Volver a iniciar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function GameSelection({ student, onSelected }: GameSelectionProps) {
   const [catalog, setCatalog] = useState<GamesCatalog>({ categorias: [], juegos: [] });
   const [activeCategory, setActiveCategory] = useState("todos");
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [selecting, setSelecting] = useState(false);
   const [error, setError] = useState("");
+  const [completedGame, setCompletedGame] = useState<Game | null>(null);
+  const [completedHistory, setCompletedHistory] = useState<Conversation | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -55,17 +129,32 @@ export function GameSelection({ student, session, onSelected }: GameSelectionPro
     return catalog.juegos.filter((game) => game.categoria_id === activeCategory);
   }, [activeCategory, catalog.juegos]);
 
-  const handleSelect = async (game: Game) => {
+  const handleSelect = async (game: Game, forceNew = false) => {
     setSelecting(true);
     setError("");
     try {
-      const conversation = await api.openConversation(session.id, game.id);
-      onSelected(game, conversation);
+      const result = await api.openGame(student.id, game.id, forceNew);
+      if (result.ya_completado && result.historial_completado) {
+        setCompletedGame(game);
+        setCompletedHistory(result.historial_completado);
+        return;
+      }
+      if (result.sesion_id && result.conversation) {
+        onSelected(game, result.sesion_id, result.conversation);
+      }
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "No se pudo abrir el juego.");
     } finally {
       setSelecting(false);
     }
+  };
+
+  const handleRestartCompleted = async () => {
+    if (!completedGame) return;
+    const game = completedGame;
+    setCompletedGame(null);
+    setCompletedHistory(null);
+    await handleSelect(game, true);
   };
 
   const categoryFilters = [
@@ -123,6 +212,18 @@ export function GameSelection({ student, session, onSelected }: GameSelectionPro
           </>
         )}
       </div>
+
+      {completedGame && completedHistory && (
+        <CompletedModal
+          game={completedGame}
+          historial={completedHistory}
+          onRestart={() => void handleRestartCompleted()}
+          onCancel={() => {
+            setCompletedGame(null);
+            setCompletedHistory(null);
+          }}
+        />
+      )}
     </div>
   );
 }
