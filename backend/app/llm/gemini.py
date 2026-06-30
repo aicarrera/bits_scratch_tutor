@@ -32,6 +32,26 @@ def _bloque_nombre(bloques_data: dict, bloque_id: str) -> str:
     return bloque_id
 
 
+def _clean_opciones(raw: list, limit: int = 3, max_len: int = 40) -> list[str]:
+    """Normaliza las opciones de respuesta rápida: cortas, sin vacíos ni duplicados."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in raw or []:
+        if not isinstance(item, str):
+            continue
+        text = item.strip()
+        if not text or len(text) > max_len:
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(text)
+        if len(out) >= limit:
+            break
+    return out
+
+
 # --------------------------------------------------------------------------- #
 #  Pydantic schema for structured Gemini output                                #
 # --------------------------------------------------------------------------- #
@@ -46,6 +66,7 @@ class _RespuestaTutorOut(BaseModel):
     respuesta: str
     fase: Literal["predecir", "pista", "confirmar", "responder"]
     bloques_sugeridos: list[_BloqueSugeridoOut]
+    opciones_respuesta: list[str]
     necesita_aclaracion: bool
     razonamiento_pedagogico: str
 
@@ -94,6 +115,19 @@ SOBRE bloques_sugeridos:
 - En "responder": solo si la pregunta es sobre un bloque específico.
 - En "confirmar": sí muestra el bloque que corresponde.
 - El campo "imagen" debe ser exactamente el id del bloque (ej: "movimiento_mover_pasos").
+
+SOBRE opciones_respuesta (MUY IMPORTANTE — son botones que el niño tocará para responderte):
+- Devuelve SIEMPRE entre 2 y 3 opciones, salvo que tu mensaje no espere ninguna respuesta del niño (en ese caso, lista vacía).
+- Cada opción es lo que DIRÍA EL NIÑO, en primera persona, MUY corta (2 a 5 palabras), en español simple. Sin emojis.
+- Las opciones deben tener sentido como respuesta directa a tu pregunta y llevar la conversación hacia el objetivo del ejercicio.
+- Incluye SIEMPRE una opción "de escape" para el niño que no sabe (ej: "No estoy seguro", "Ayúdame", "Dame otra pista").
+- Adapta según la fase:
+  * "predecir": opciones de predicción concretas + una de duda. Ej: ["El gato se mueve", "El programa empieza", "No estoy seguro"].
+  * "pista": opciones de progreso. Ej: ["Ya lo encontré", "Sigo sin verlo", "Dame otra pista"].
+  * "confirmar": opciones de avance. Ej: ["Sí, ya lo puse", "No, ayúdame"].
+  * "responder": si hiciste una pregunta, ofrece opciones; si solo respondiste un dato, puede ir vacío o una sola opción para seguir (ej: ["¡Entendido!"]).
+- No repitas literalmente el texto del bloque; usa lenguaje natural de niño.
+- Nunca pongas la solución completa dentro de una opción.
 """
 
 
@@ -176,6 +210,9 @@ class GeminiTutorLLM(TutorLLM):
                 for b in bloques_validos
             ]
 
+            # Sanitize quick-reply options: short, non-empty, de-duplicated, capped at 3
+            opciones_out = _clean_opciones(data.opciones_respuesta)
+
             input_tokens = None
             output_tokens = None
             if response.usage_metadata:
@@ -191,6 +228,7 @@ class GeminiTutorLLM(TutorLLM):
                 output_tokens=output_tokens,
                 fase=data.fase,
                 bloques_sugeridos=bloques_out,
+                opciones_respuesta=opciones_out,
                 necesita_aclaracion=data.necesita_aclaracion,
                 razonamiento_pedagogico=data.razonamiento_pedagogico,
                 metadata={
@@ -199,6 +237,7 @@ class GeminiTutorLLM(TutorLLM):
                     "conversation_id": str(conversation.id),
                     "fase": data.fase,
                     "bloques_sugeridos": bloques_out,
+                    "opciones_respuesta": opciones_out,
                     "razonamiento_pedagogico": data.razonamiento_pedagogico,
                     "necesita_aclaracion": data.necesita_aclaracion,
                 },

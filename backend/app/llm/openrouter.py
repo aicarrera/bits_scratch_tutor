@@ -46,11 +46,24 @@ SOBRE bloques_sugeridos:
 - En "confirmar": sí muestra el bloque que corresponde.
 - El campo "imagen" debe ser exactamente el id del bloque (ej: "movimiento_mover_pasos").
 
+SOBRE opciones_respuesta (MUY IMPORTANTE — son botones que el niño tocará para responderte):
+- Devuelve SIEMPRE entre 2 y 3 opciones, salvo que tu mensaje no espere ninguna respuesta del niño (en ese caso, lista vacía).
+- Cada opción es lo que DIRÍA EL NIÑO, en primera persona, MUY corta (2 a 5 palabras), en español simple. Sin emojis.
+- Las opciones deben tener sentido como respuesta directa a tu pregunta y llevar la conversación hacia el objetivo del ejercicio.
+- Incluye SIEMPRE una opción "de escape" para el niño que no sabe (ej: "No estoy seguro", "Ayúdame", "Dame otra pista").
+- Adapta según la fase:
+  * "predecir": opciones de predicción concretas + una de duda. Ej: ["El gato se mueve", "El programa empieza", "No estoy seguro"].
+  * "pista": opciones de progreso. Ej: ["Ya lo encontré", "Sigo sin verlo", "Dame otra pista"].
+  * "confirmar": opciones de avance. Ej: ["Sí, ya lo puse", "No, ayúdame"].
+  * "responder": si hiciste una pregunta, ofrece opciones; si solo respondiste un dato, puede ir vacío o una sola opción para seguir (ej: ["¡Entendido!"]).
+- No repitas literalmente el texto del bloque; usa lenguaje natural de niño.
+
 FORMATO DE RESPUESTA — debes devolver ÚNICAMENTE un objeto JSON con esta estructura exacta:
 {
   "respuesta": "texto para el niño",
   "fase": "predecir" | "pista" | "confirmar" | "responder",
   "bloques_sugeridos": [{"id": "...", "imagen": "...", "nombre": "..."}],
+  "opciones_respuesta": ["...", "..."],
   "necesita_aclaracion": true | false,
   "razonamiento_pedagogico": "explicación interna breve"
 }
@@ -74,6 +87,26 @@ def _bloque_nombre(bloques_data: dict, bloque_id: str) -> str:
         if b["id"] == bloque_id:
             return b.get("nombre", bloque_id)
     return bloque_id
+
+
+def _clean_opciones(raw: list, limit: int = 3, max_len: int = 40) -> list[str]:
+    """Normaliza las opciones de respuesta rápida: cortas, sin vacíos ni duplicados."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in raw or []:
+        if not isinstance(item, str):
+            continue
+        text = item.strip()
+        if not text or len(text) > max_len:
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(text)
+        if len(out) >= limit:
+            break
+    return out
 
 
 class OpenRouterTutorLLM(TutorLLM):
@@ -156,6 +189,8 @@ class OpenRouterTutorLLM(TutorLLM):
                 if isinstance(b, dict) and b.get("id") in ids_validos
             ]
 
+            opciones_out = _clean_opciones(data.get("opciones_respuesta", []))
+
             usage = completion.usage
             return TutorReply(
                 text=respuesta,
@@ -166,6 +201,7 @@ class OpenRouterTutorLLM(TutorLLM):
                 output_tokens=usage.completion_tokens if usage else None,
                 fase=fase,
                 bloques_sugeridos=bloques_out,
+                opciones_respuesta=opciones_out,
                 necesita_aclaracion=necesita_aclaracion,
                 razonamiento_pedagogico=razonamiento,
                 metadata={
@@ -174,6 +210,7 @@ class OpenRouterTutorLLM(TutorLLM):
                     "conversation_id": str(conversation.id),
                     "fase": fase,
                     "bloques_sugeridos": bloques_out,
+                    "opciones_respuesta": opciones_out,
                     "razonamiento_pedagogico": razonamiento,
                     "necesita_aclaracion": necesita_aclaracion,
                 },

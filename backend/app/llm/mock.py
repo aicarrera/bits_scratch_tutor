@@ -131,6 +131,20 @@ def _make_bloque(bloque_id: str) -> dict:
     }
 
 
+# Quick-reply options the child can tap, by pedagogical phase.
+_OPCIONES_POR_FASE: dict[str, list[str]] = {
+    "predecir": ["Creo que sí pasa", "Creo que no", "No estoy seguro"],
+    "pista": ["Ya lo encontré", "Sigo sin verlo", "Dame otra pista"],
+    "confirmar": ["Sí, ya lo puse", "No, ayúdame"],
+    "explorar": ["Ya tengo una idea", "Ayúdame a pensar"],
+    "responder": ["¡Vamos a empezar!", "Tengo una pregunta"],
+}
+
+
+def _opciones_para(fase: str) -> list[str]:
+    return list(_OPCIONES_POR_FASE.get(fase, []))
+
+
 class MockTutorLLM(TutorLLM):
     async def generate_reply(
         self,
@@ -157,6 +171,7 @@ class MockTutorLLM(TutorLLM):
             text, fase, block_ids = options[idx]
 
         bloques_sugeridos = [_make_bloque(bid) for bid in block_ids]
+        opciones_respuesta = _opciones_para(fase)
         prompt_version = f"{game.id}_{version.version}" if version else game.id
 
         return TutorReply(
@@ -166,6 +181,7 @@ class MockTutorLLM(TutorLLM):
             prompt_version=prompt_version,
             fase=fase,
             bloques_sugeridos=bloques_sugeridos,
+            opciones_respuesta=opciones_respuesta,
             necesita_aclaracion=False,
             razonamiento_pedagogico=f"Mock: turno {len(history)}, juego {game.id}",
             metadata={
@@ -174,6 +190,7 @@ class MockTutorLLM(TutorLLM):
                 "conversation_id": str(conversation.id),
                 "fase": fase,
                 "bloques_sugeridos": bloques_sugeridos,
+                "opciones_respuesta": opciones_respuesta,
                 "razonamiento_pedagogico": f"Mock: turno {len(history)}",
                 "necesita_aclaracion": False,
             },

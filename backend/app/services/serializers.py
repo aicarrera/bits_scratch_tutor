@@ -44,6 +44,8 @@ def serialize_message(message: Message) -> MessageResponse:
     raw_bloques = meta.get("bloques_sugeridos", [])
     from app.schemas.conversations import BloqueSugerido
     bloques = [BloqueSugerido(**b) for b in raw_bloques if isinstance(b, dict)]
+    raw_opciones = meta.get("opciones_respuesta", [])
+    opciones = [o for o in raw_opciones if isinstance(o, str) and o.strip()]
     return MessageResponse(
         id=message.id,
         conversacion_id=message.conversacion_id,
@@ -61,6 +63,7 @@ def serialize_message(message: Message) -> MessageResponse:
         metadata=meta,
         fase=meta.get("fase"),
         bloques_sugeridos=bloques,
+        opciones_respuesta=opciones,
     )
 
 

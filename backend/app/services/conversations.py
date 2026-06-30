@@ -196,6 +196,7 @@ class ConversationsService:
             **reply.metadata,
             "fase": reply.fase,
             "bloques_sugeridos": reply.bloques_sugeridos,
+            "opciones_respuesta": reply.opciones_respuesta,
             "razonamiento_pedagogico": reply.razonamiento_pedagogico,
             "necesita_aclaracion": reply.necesita_aclaracion,
         }

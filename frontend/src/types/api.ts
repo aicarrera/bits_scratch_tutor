@@ -77,6 +77,7 @@ export type ChatMessage = {
   metadata: Record<string, unknown>;
   fase: TutorFase | null;
   bloques_sugeridos: BloqueSugerido[];
+  opciones_respuesta: string[];
 };
 
 export type Conversation = {

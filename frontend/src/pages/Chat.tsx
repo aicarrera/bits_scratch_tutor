@@ -173,10 +173,22 @@ function BlockCard({ bloque }: { bloque: BloqueSugerido }) {
   );
 }
 
-function TutorMessage({ message }: { message: ChatMessage }) {
+function TutorMessage({
+  message,
+  showOptions,
+  onOption,
+  disabled,
+}: {
+  message: ChatMessage;
+  showOptions: boolean;
+  onOption: (text: string) => void;
+  disabled: boolean;
+}) {
   const faseLabel = message.fase ? FASE_LABELS[message.fase] : "";
   const faseColor = message.fase ? FASE_COLORS[message.fase] : "";
   const hasBloques = message.bloques_sugeridos.length > 0;
+  const opciones = message.opciones_respuesta ?? [];
+  const hasOpciones = showOptions && opciones.length > 0;
 
   return (
     <div className="flex gap-3 justify-start fade-in">
@@ -196,6 +208,20 @@ function TutorMessage({ message }: { message: ChatMessage }) {
           <div className="flex flex-wrap gap-2 pt-1">
             {message.bloques_sugeridos.map((bloque) => (
               <BlockCard key={bloque.id} bloque={bloque} />
+            ))}
+          </div>
+        )}
+        {hasOpciones && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {opciones.map((opcion) => (
+              <button
+                key={opcion}
+                onClick={() => onOption(opcion)}
+                disabled={disabled}
+                className="px-4 py-2 rounded-full border-2 border-[#FF8C42] text-[#FF8C42] text-sm font-semibold bg-white hover:bg-[#FF8C42] hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#FF8C42] transition transform hover:scale-[1.03] disabled:transform-none shadow-sm"
+              >
+                {opcion}
+              </button>
             ))}
           </div>
         )}
@@ -357,8 +383,8 @@ export function Chat({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
-  const sendMessage = async () => {
-    const text = input.trim();
+  const sendMessage = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || typing) return;
     setInput("");
     setTyping(true);
@@ -381,6 +407,7 @@ export function Chat({
       metadata: {},
       fase: null,
       bloques_sugeridos: [],
+      opciones_respuesta: [],
     };
     setMessages((prev) => [...prev, optimisticChild]);
 
@@ -410,6 +437,7 @@ export function Chat({
         metadata: { local_error: true },
         fase: null,
         bloques_sugeridos: [],
+        opciones_respuesta: [],
       };
       setMessages((prev) => {
         const base = prev.filter((m) => m.id !== tempId);
@@ -488,7 +516,7 @@ export function Chat({
         {/* MAIN CHAT AREA */}
         <div className="flex-1 overflow-y-auto chat-messages px-4 py-6">
           <div className="max-w-3xl mx-auto space-y-4">
-            {messages.map((message) => {
+            {messages.map((message, idx) => {
               if (message.rol === "nino") {
                 return (
                   <div key={message.id} className="flex gap-3 justify-end fade-in">
@@ -501,7 +529,16 @@ export function Chat({
                   </div>
                 );
               }
-              return <TutorMessage key={message.id} message={message} />;
+              const isLastMessage = idx === messages.length - 1;
+              return (
+                <TutorMessage
+                  key={message.id}
+                  message={message}
+                  showOptions={isLastMessage && !typing}
+                  onOption={(text) => void sendMessage(text)}
+                  disabled={typing}
+                />
+              );
             })}
 
             {typing && (
@@ -533,7 +570,7 @@ export function Chat({
             onKeyDown={(event) => {
               if (event.key === "Enter") void sendMessage();
             }}
-            placeholder="Escribe tu pregunta a Bit..."
+            placeholder="O escribe tu propia respuesta a Bit..."
             className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#2E9DF7] focus:outline-none transition"
           />
           <button

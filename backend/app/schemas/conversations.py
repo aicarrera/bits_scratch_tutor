@@ -28,6 +28,7 @@ class MessageResponse(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     fase: str | None = None
     bloques_sugeridos: list[BloqueSugerido] = Field(default_factory=list)
+    opciones_respuesta: list[str] = Field(default_factory=list)
 
 
 class GameOpenRequest(BaseModel):

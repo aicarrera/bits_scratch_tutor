@@ -13,6 +13,7 @@ class TutorReply:
     output_tokens: int | None = None
     fase: str = "responder"
     bloques_sugeridos: list[dict] = field(default_factory=list)
+    opciones_respuesta: list[str] = field(default_factory=list)
     necesita_aclaracion: bool = False
     razonamiento_pedagogico: str = ""
     metadata: dict[str, object] = field(default_factory=dict)
