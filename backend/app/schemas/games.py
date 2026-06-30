@@ -22,6 +22,7 @@ class GameResponse(BaseModel):
     titulo: str
     icono: str | None
     descripcion_corta: str | None
+    url_video: str | None = None
     duracion_estimada_min: int | None
     es_proyecto_libre: bool
     instruccion_nino: str

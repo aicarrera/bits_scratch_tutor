@@ -29,6 +29,7 @@ def serialize_game(game: Game, version: GameVersion | None, category: GameCatego
         icono=game.icono,
         descripcion_corta=game.descripcion_corta,
         duracion_estimada_min=game.duracion_estimada_min,
+        url_video=game.url_video,
         es_proyecto_libre=game.es_proyecto_libre,
         instruccion_nino=version.instruccion_nino if version else "Cuéntame qué quieres construir hoy.",
         version_juego_id=version.id if version else None,

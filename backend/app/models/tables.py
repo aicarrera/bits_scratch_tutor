@@ -101,6 +101,7 @@ class Game(CreatedAtMixin, Base):
     titulo: Mapped[str] = mapped_column(Text, nullable=False)
     icono: Mapped[str | None] = mapped_column(Text)
     descripcion_corta: Mapped[str | None] = mapped_column(Text)
+    url_video: Mapped[str | None] = mapped_column(Text)
     duracion_estimada_min: Mapped[int | None] = mapped_column(SmallInteger)
     es_proyecto_libre: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
