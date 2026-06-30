@@ -38,6 +38,7 @@ export type Game = {
   icono: string | null;
   descripcion_corta: string | null;
   duracion_estimada_min: number | null;
+  url_video: string | null;
   es_proyecto_libre: boolean;
   instruccion_nino: string;
   version_juego_id: string | null;

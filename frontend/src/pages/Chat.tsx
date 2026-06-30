@@ -50,6 +50,104 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
 }
 
+/** Extrae el ID de video de las distintas formas de URL de YouTube. */
+function youtubeId(url: string): string | null {
+  try {
+    const parsed = new URL(url.trim());
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") return parsed.pathname.slice(1) || null;
+    if (host.endsWith("youtube.com")) {
+      if (parsed.pathname.startsWith("/embed/")) return parsed.pathname.split("/")[2] || null;
+      if (parsed.pathname.startsWith("/shorts/")) return parsed.pathname.split("/")[2] || null;
+      return parsed.searchParams.get("v");
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function VideoModal({ url, title, onClose }: { url: string; title: string; onClose: () => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const id = youtubeId(url);
+  const embedUrl = id
+    ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`
+    : null;
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !document.fullscreenElement) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const toggleFullscreen = () => {
+    const node = containerRef.current;
+    if (!node) return;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else {
+      void node.requestFullscreen?.();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 fade-in"
+      onClick={onClose}
+    >
+      <div
+        ref={containerRef}
+        className="bg-black rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {/* Modal bar */}
+        <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] text-white shrink-0">
+          <span className="text-sm font-semibold truncate">🎬 {title}</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleFullscreen}
+              title="Pantalla completa"
+              className="px-2 py-1 rounded hover:bg-white/15 transition text-lg leading-none"
+            >
+              ⛶
+            </button>
+            <button
+              onClick={onClose}
+              title="Cerrar y volver al chat"
+              className="px-2 py-1 rounded hover:bg-white/15 transition text-xl leading-none"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Video */}
+        {embedUrl ? (
+          <div className="relative w-full bg-black aspect-video">
+            <iframe
+              src={embedUrl}
+              title={title}
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        ) : (
+          <div className="aspect-video flex flex-col items-center justify-center text-white/70 gap-2 p-6 text-center">
+            <span className="text-3xl">😕</span>
+            <p className="text-sm">No pude cargar el video.</p>
+            <a href={url} target="_blank" rel="noreferrer" className="text-[#2E9DF7] text-sm underline">
+              Abrir en YouTube
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function BlockCard({ bloque }: { bloque: BloqueSugerido }) {
   const [imgError, setImgError] = useState(false);
   const imgSrc = `/bloques/${bloque.imagen}.png`;
@@ -252,6 +350,7 @@ export function Chat({
   const [finishLoading, setFinishLoading] = useState(false);
   const [abandonLoading, setAbandonLoading] = useState(false);
   const [historialOpen, setHistorialOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -349,7 +448,12 @@ export function Chat({
 
   return (
     <div className="min-h-screen flex flex-col h-screen">
-      <Header code={student.codigo_publico} game={game} onExit={() => setFinishOpen(true)} />
+      <Header
+        code={student.codigo_publico}
+        game={game}
+        onExit={() => setFinishOpen(true)}
+        onVideo={game.url_video ? () => setVideoOpen(true) : undefined}
+      />
 
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT HISTORY SIDEBAR */}
@@ -459,6 +563,11 @@ export function Chat({
           </button>
         </div>
       </div>
+
+      {/* Video modal */}
+      {videoOpen && game.url_video && (
+        <VideoModal url={game.url_video} title={game.titulo} onClose={() => setVideoOpen(false)} />
+      )}
 
       {/* Teacher finish modal */}
       {finishOpen && (
