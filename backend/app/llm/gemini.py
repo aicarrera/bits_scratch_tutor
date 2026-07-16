@@ -1,5 +1,6 @@
 from app.core.settings import Settings
 from app.llm.base import TutorLLM, TutorReply
+from app.llm.prompts import build_system_instruction
 from app.models import Conversation, Game, GameVersion, Message
 
 
@@ -19,20 +20,24 @@ class GeminiTutorLLM(TutorLLM):
         from google.genai import types
 
         client = genai.Client(api_key=self.settings.gemini_api_key)
-        system_instruction = version.system_prompt if version else (
-            "Eres Bit, tutor de Scratch para niños. Responde breve, amable y con preguntas."
+        # Prompt base de Bit (andamiaje socrático) + referencia privada del juego actual
+        # (solución, bloques clave traducidos a su etiqueta real de Scratch y video).
+        # Los datos ausentes se omiten; nunca se inventan.
+        system_instruction = build_system_instruction(
+            titulo=game.titulo,
+            descripcion_solucion=game.descripcion_solucion,
+            bloques_clave=game.bloques_clave,
+            url_video=game.url_video,
+            base_prompt=version.system_prompt if version else None,
         )
         transcript = "\n".join(
             f"{message.orden_mensaje}. {'Estudiante' if message.rol == 'nino' else 'Bit'}: {message.contenido}"
             for message in history[-16:]
         )
         contents = (
-            f"Juego: {game.titulo}\n"
-            f"Conversación actual: {conversation.id}\n"
             f"Historial reciente:\n{transcript}\n\n"
             f"Nuevo mensaje del estudiante: {user_text}\n"
-            "Responde con una pista breve en español para un niño de 8 a 10 años. "
-            "No des la solución completa. Haz una sola pregunta o da una sola pista por turno."
+            "Responde siguiendo tus reglas: breve, cálido, una sola pregunta o pista por turno."
         )
         response = client.models.generate_content(
             model=self.settings.gemini_model,

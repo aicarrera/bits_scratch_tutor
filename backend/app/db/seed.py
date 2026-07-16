@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.llm.prompts import BIT_SYSTEM_PROMPT
 from app.models import Game, GameCategory, GameVersion, Group, Student
 
 
@@ -53,6 +54,16 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🐱",
             descripcion_corta="Anima un personaje para que baile con música.",
             duracion_estimada_min=20,
+            url_video="https://youtu.be/Sf4Dr52UElc",
+            descripcion_solucion=(
+                "Al presionar la bandera verde, el gato se mueve a la derecha y luego a la izquierda "
+                "varias veces usando un bucle, con pequeñas esperas para que el movimiento se vea. "
+                "Después gira sobre sí mismo varias veces y vuelve a quedar mirando a la derecha."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","control_repetir_veces","movimiento_cambiar_x",'
+                '"control_esperar_segundos","movimiento_girar_derecha_grados","movimiento_apuntar_direccion"'
+            ),
         ),
         Game(
             id="ej_002",
@@ -61,6 +72,7 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🦋",
             descripcion_corta="Crea una animación suave usando disfraces.",
             duracion_estimada_min=15,
+            url_video="https://youtu.be/M1ob_Fa7Fek",
         ),
         Game(
             id="ej_003",
@@ -85,6 +97,18 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="💬",
             descripcion_corta="Haz que dos personajes conversen en orden.",
             duracion_estimada_min=20,
+            url_video="https://youtu.be/4ccq7IIhRcg",
+            descripcion_solucion=(
+                "Hay dos personajes con scripts separados. El primer personaje arranca con la bandera "
+                "verde: saluda con 'decir durante segundos', envía un mensaje (por ejemplo 'mensaje1'), "
+                "espera un momento, y luego se presenta con otro 'decir durante segundos'. El segundo "
+                "personaje no arranca con bandera verde sino que espera con 'al recibir mensaje1'; cuando "
+                "llega ese mensaje, responde el saludo, espera un momento, y luego se presenta también."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","eventos_enviar_mensaje","eventos_al_recibir_mensaje",'
+                '"apariencia_decir_segundos","control_esperar_segundos"'
+            ),
         ),
         Game(
             id="ej_006",
@@ -93,6 +117,18 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🏞️",
             descripcion_corta="Cambia fondos para contar una historia.",
             duracion_estimada_min=25,
+            url_video="https://www.youtube.com/watch?v=n5P_3XF9dSw",
+            descripcion_solucion=(
+                "Al presionar la bandera verde, el personaje va contando una historia que se desarrolla "
+                "en varios escenarios. En cada escena, primero se cambia el fondo al lugar correspondiente, "
+                "luego el personaje dice algo con 'decir durante segundos', después se mueve unos pasos y "
+                "cambia al siguiente disfraz para dar sensación de movimiento. El patrón por escena es: "
+                "cambiar fondo → decir → mover pasos → siguiente disfraz."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","apariencia_cambiar_fondo","apariencia_decir_segundos",'
+                '"movimiento_mover_pasos","apariencia_siguiente_disfraz"'
+            ),
         ),
         Game(
             id="proyecto_libre",
@@ -133,11 +169,7 @@ async def seed_demo_data(db: AsyncSession) -> None:
                     pistas_progresivas=["Observa los bloques", "Prueba una parte", "Mejora tu proyecto"],
                     criterios_completado=["El estudiante explica su avance", "El proyecto tiene una acción observable"],
                     preguntas_frecuentes_esperadas=["¿Qué bloque uso?", "¿Cómo lo hago funcionar?"],
-                    system_prompt=(
-                        "Eres Bit, tutor de Scratch para niños de 8 a 10 años. "
-                        "Responde en español simple, con ánimo, sin dar la solución completa. "
-                        "Haz una pregunta o da una pista corta por turno."
-                    ),
+                    system_prompt=BIT_SYSTEM_PROMPT,
                 )
             )
 

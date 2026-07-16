@@ -29,6 +29,7 @@ class GameResponse(BaseModel):
     version: str | None
     objetivos_pedagogicos: list[Any] = []
     color_acento: str | None = None
+    url_video: str | None = None
 
 
 class GamesCatalogResponse(BaseModel):

@@ -35,6 +35,7 @@ def serialize_game(game: Game, version: GameVersion | None, category: GameCatego
         version=version.version if version else None,
         objetivos_pedagogicos=version.objetivos_pedagogicos if version else [],
         color_acento=category.color_hex if category else None,
+        url_video=game.url_video,
     )
 
 
