@@ -65,6 +65,8 @@ CREATE TABLE juegos (
     descripcion_corta TEXT,
     duracion_estimada_min SMALLINT,
     url_video TEXT,
+    descripcion_solucion TEXT,
+    bloques_clave TEXT,
     es_proyecto_libre BOOLEAN NOT NULL DEFAULT false,
     activo BOOLEAN NOT NULL DEFAULT true,
     creado_en TIMESTAMPTZ NOT NULL DEFAULT now()

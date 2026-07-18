@@ -20,14 +20,36 @@ INSERT INTO categorias_juego (id, nombre, icono, color_hex, orden) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Juegos
-INSERT INTO juegos (id, categoria_id, titulo, icono, descripcion_corta, duracion_estimada_min, es_proyecto_libre) VALUES
-  ('ej_001',        'animaciones', 'Haz bailar al gato',          '🐱', 'Anima un personaje para que baile con música.',        20, false),
-  ('ej_002',        'animaciones', 'Mariposa cambia de disfraz',  '🦋', 'Crea una animación suave usando disfraces.',           15, false),
-  ('ej_003',        'juegos',      'Atrapa la estrella',          '⭐', 'Mueve un personaje y suma puntos al tocar estrellas.', 25, false),
-  ('ej_004',        'juegos',      'Salta obstáculos',            '🟩', 'Programa un salto y evita objetos que se acercan.',    30, false),
-  ('ej_005',        'historias',   'Diálogo entre personajes',    '💬', 'Haz que dos personajes conversen en orden.',           20, false),
-  ('ej_006',        'historias',   'Historia con escenarios',     '🏞️', 'Cambia fondos para contar una historia.',              25, false),
-  ('proyecto_libre','libre',       'Proyecto libre',              '🚀', 'Crea una idea propia con ayuda de Bit.',               NULL, true)
+-- url_video, descripcion_solucion y bloques_clave alimentan al tutor (Bit): la solución de
+-- referencia y los bloques clave se inyectan en su prompt para que responda mejor por juego.
+-- bloques_clave usa los ids del catálogo backend/app/data/bloques_slim.json.
+INSERT INTO juegos (id, categoria_id, titulo, icono, descripcion_corta, duracion_estimada_min, es_proyecto_libre, url_video, descripcion_solucion, bloques_clave) VALUES
+  ('ej_001', 'animaciones', 'Haz bailar al gato', '🐱', 'Anima un personaje para que baile con música.', 20, false,
+   'https://youtu.be/Sf4Dr52UElc',
+   'Al presionar la bandera verde, el gato se mueve a la derecha y luego a la izquierda varias veces usando un bucle, con pequeñas esperas para que el movimiento se vea. Después gira sobre sí mismo varias veces y vuelve a quedar mirando a la derecha.',
+   '"eventos_bandera_verde","control_repetir_veces","movimiento_cambiar_x","control_esperar_segundos","movimiento_girar_derecha_grados","movimiento_apuntar_direccion"'),
+  ('ej_002', 'animaciones', 'Mariposa cambia de disfraz', '🦋', 'Crea una animación suave usando disfraces.', 15, false,
+   'https://youtu.be/M1ob_Fa7Fek',
+   'Al presionar la bandera verde, la mariposa cambia de disfraz una y otra vez dentro de un bucle, dejando una pequeña espera entre cada cambio para que la animación se vea suave y continua.',
+   '"eventos_bandera_verde","control_por_siempre","apariencia_siguiente_disfraz","control_esperar_segundos"'),
+  ('ej_003', 'juegos', 'Atrapa la estrella', '⭐', 'Mueve un personaje y suma puntos al tocar estrellas.', 25, false,
+   NULL,
+   'Con la bandera verde arranca el juego. El personaje se mueve con las teclas de flecha cambiando su posición x e y. En un bucle ''por siempre'' se revisa si toca la estrella; cuando la toca, una variable de puntaje sube.',
+   '"eventos_bandera_verde","eventos_tecla_presionada","movimiento_cambiar_x","movimiento_cambiar_y","control_por_siempre","sensores_tocando","variables_boton_crear","variables_cambiar"'),
+  ('ej_004', 'juegos', 'Salta obstáculos', '🟩', 'Programa un salto y evita objetos que se acercan.', 30, false,
+   NULL,
+   'Al presionar la bandera verde, el personaje salta subiendo y luego bajando su posición y. Los obstáculos se mueven solos con un bucle ''por siempre''; con un ''si entonces'' se revisa si el personaje toca un obstáculo para reaccionar (por ejemplo, terminar el juego).',
+   '"eventos_bandera_verde","eventos_tecla_presionada","movimiento_cambiar_y","movimiento_fijar_y","control_por_siempre","control_si_entonces","sensores_tocando"'),
+  ('ej_005', 'historias', 'Diálogo entre personajes', '💬', 'Haz que dos personajes conversen en orden.', 20, false,
+   'https://youtu.be/4ccq7IIhRcg',
+   'Hay dos personajes con scripts separados. El primer personaje arranca con la bandera verde: saluda con ''decir durante segundos'', envía un mensaje (por ejemplo ''mensaje1''), espera un momento, y luego se presenta con otro ''decir durante segundos''. El segundo personaje no arranca con bandera verde sino que espera con ''al recibir mensaje1''; cuando llega ese mensaje, responde el saludo, espera un momento, y luego se presenta también.',
+   '"eventos_bandera_verde","eventos_enviar_mensaje","eventos_al_recibir_mensaje","apariencia_decir_segundos","control_esperar_segundos"'),
+  ('ej_006', 'historias', 'Historia con escenarios', '🏞️', 'Cambia fondos para contar una historia.', 25, false,
+   'https://www.youtube.com/watch?v=n5P_3XF9dSw',
+   'Al presionar la bandera verde, el personaje va contando una historia que se desarrolla en varios escenarios. En cada escena, primero se cambia el fondo al lugar correspondiente, luego el personaje dice algo con ''decir durante segundos'', después se mueve unos pasos y cambia al siguiente disfraz para dar sensación de movimiento. El patrón por escena es: cambiar fondo → decir → mover pasos → siguiente disfraz.',
+   '"eventos_bandera_verde","apariencia_cambiar_fondo","apariencia_decir_segundos","movimiento_mover_pasos","apariencia_siguiente_disfraz"'),
+  ('proyecto_libre', 'libre', 'Proyecto libre', '🚀', 'Crea una idea propia con ayuda de Bit.', NULL, true,
+   NULL, NULL, NULL)
 ON CONFLICT (id) DO NOTHING;
 
 -- Versiones de juego (v1 para cada juego)

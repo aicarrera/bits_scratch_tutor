@@ -171,6 +171,16 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🐱",
             descripcion_corta="Anima un personaje para que baile con música.",
             duracion_estimada_min=20,
+            url_video="https://youtu.be/Sf4Dr52UElc",
+            descripcion_solucion=(
+                "Al presionar la bandera verde, el gato se mueve a la derecha y luego a la izquierda "
+                "varias veces usando un bucle, con pequeñas esperas para que el movimiento se vea. "
+                "Después gira sobre sí mismo varias veces y vuelve a quedar mirando a la derecha."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","control_repetir_veces","movimiento_cambiar_x",'
+                '"control_esperar_segundos","movimiento_girar_derecha_grados","movimiento_apuntar_direccion"'
+            ),
         ),
         Game(
             id="ej_002",
@@ -179,6 +189,16 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🦋",
             descripcion_corta="Crea una animación suave usando disfraces.",
             duracion_estimada_min=15,
+            url_video="https://youtu.be/M1ob_Fa7Fek",
+            descripcion_solucion=(
+                "Al presionar la bandera verde, la mariposa cambia de disfraz una y otra vez dentro "
+                "de un bucle, dejando una pequeña espera entre cada cambio para que la animación se "
+                "vea suave y continua."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","control_por_siempre","apariencia_siguiente_disfraz",'
+                '"control_esperar_segundos"'
+            ),
         ),
         Game(
             id="ej_003",
@@ -187,6 +207,16 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="⭐",
             descripcion_corta="Mueve un personaje y suma puntos al tocar estrellas.",
             duracion_estimada_min=25,
+            descripcion_solucion=(
+                "Con la bandera verde arranca el juego. El personaje se mueve con las teclas de flecha "
+                "cambiando su posición x e y. En un bucle 'por siempre' se revisa si toca la estrella; "
+                "cuando la toca, una variable de puntaje sube."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","eventos_tecla_presionada","movimiento_cambiar_x",'
+                '"movimiento_cambiar_y","control_por_siempre","sensores_tocando",'
+                '"variables_boton_crear","variables_cambiar"'
+            ),
         ),
         Game(
             id="ej_004",
@@ -195,6 +225,15 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🟩",
             descripcion_corta="Programa un salto y evita objetos que se acercan.",
             duracion_estimada_min=30,
+            descripcion_solucion=(
+                "Al presionar la bandera verde, el personaje salta subiendo y luego bajando su posición "
+                "y. Los obstáculos se mueven solos con un bucle 'por siempre'; con un 'si entonces' se "
+                "revisa si el personaje toca un obstáculo para reaccionar (por ejemplo, terminar el juego)."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","eventos_tecla_presionada","movimiento_cambiar_y",'
+                '"movimiento_fijar_y","control_por_siempre","control_si_entonces","sensores_tocando"'
+            ),
         ),
         Game(
             id="ej_005",
@@ -203,6 +242,18 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="💬",
             descripcion_corta="Haz que dos personajes conversen en orden.",
             duracion_estimada_min=20,
+            url_video="https://youtu.be/4ccq7IIhRcg",
+            descripcion_solucion=(
+                "Hay dos personajes con scripts separados. El primer personaje arranca con la bandera "
+                "verde: saluda con 'decir durante segundos', envía un mensaje (por ejemplo 'mensaje1'), "
+                "espera un momento, y luego se presenta con otro 'decir durante segundos'. El segundo "
+                "personaje no arranca con bandera verde sino que espera con 'al recibir mensaje1'; cuando "
+                "llega ese mensaje, responde el saludo, espera un momento, y luego se presenta también."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","eventos_enviar_mensaje","eventos_al_recibir_mensaje",'
+                '"apariencia_decir_segundos","control_esperar_segundos"'
+            ),
         ),
         Game(
             id="ej_006",
@@ -211,6 +262,18 @@ async def seed_demo_data(db: AsyncSession) -> None:
             icono="🏞️",
             descripcion_corta="Cambia fondos para contar una historia.",
             duracion_estimada_min=25,
+            url_video="https://www.youtube.com/watch?v=n5P_3XF9dSw",
+            descripcion_solucion=(
+                "Al presionar la bandera verde, el personaje va contando una historia que se desarrolla "
+                "en varios escenarios. En cada escena, primero se cambia el fondo al lugar correspondiente, "
+                "luego el personaje dice algo con 'decir durante segundos', después se mueve unos pasos y "
+                "cambia al siguiente disfraz para dar sensación de movimiento. El patrón por escena es: "
+                "cambiar fondo → decir → mover pasos → siguiente disfraz."
+            ),
+            bloques_clave=(
+                '"eventos_bandera_verde","apariencia_cambiar_fondo","apariencia_decir_segundos",'
+                '"movimiento_mover_pasos","apariencia_siguiente_disfraz"'
+            ),
         ),
         Game(
             id="proyecto_libre",
