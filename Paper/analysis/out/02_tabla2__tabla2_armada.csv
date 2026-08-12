@@ -1,0 +1,16 @@
+ord,bloque,metrica,valor
+1,Data totals,Children,25
+2,Data totals,Sessions,98
+3,Data totals,Messages,2738
+4,Data totals,Child msg.,1320
+5,Data totals,Bit msg.,1418
+6,Data totals,Exercises,6
+7,Per session,Turns,13.5 ± 13.5
+8,Per session,Messages,27.9 ± 27.1
+9,Per session,Questions,2.2 ± 2.7
+10,Per session,Duration (min),13.8 ± 13.9
+11,Per session,Blocks sugg.,6.8 ± 7.6
+12,Outcomes,Closed %,41.8 %
+13,Outcomes,Abandoned %,42.9 %
+14,Outcomes,Active %,15.3 %
+15,Outcomes,Satisf. (1-5),3.9 ± 1.2

@@ -1,0 +1,271 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stylish Article
+% LaTeX Template
+% Version 2.1 (1/10/15)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Mathias Legrand (legrand.mathias@gmail.com) 
+% With extensive modifications by:
+% Vel(vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[fleqn,10pt]{JLA_article} % Document font size and equations flushed left
+
+\usepackage[english]{babel} % Specify a different language here - english by default
+
+\usepackage{lipsum} % Required to insert dummy text. To be removed otherwise
+
+\addbibresource{sample.bib}
+
+
+
+%----------------------------------------------------------------------------------------
+%	HYPERLINKS
+%----------------------------------------------------------------------------------------
+
+\usepackage{hyperref} % Required for hyperlinks
+\hypersetup{hidelinks,colorlinks,breaklinks=true,urlcolor=color2,citecolor=color1,linkcolor=color1,bookmarksopen=false,pdftitle={Title},pdfauthor={Author}}
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\PaperTitle{When Volunteers Can't Keep Up: An LLM Tutor as Support in Under-Resourced After-School Coding Clubs} % Article title
+
+\Authors{} % Authors
+\affiliation{\textsuperscript{1}\textit{Department of Education, Example University, City, Country. email icon: somebody@gmail.com}} % Author affiliation
+\affiliation{\textsuperscript{2}\textit{Department of Computer Science, Example University, City, Country. email icon: somebody@gmail.com}} % Author affiliation
+
+\Keywords{Include a set of keywords related to your submission. Separate them by commas.} 
+
+\Submitted{10/11/12}
+\Accepted{10/11/12}
+\Published{10/11/12}
+
+\Volume{1}
+\Number{1}
+\Pages{1---10}
+\Doi{xxx-xxx-xxx}
+%----------------------------------------------------------------------------------------
+%	NOTES FOR PRACTICE OR RESEARCH
+%----------------------------------------------------------------------------------------
+%\WithoutNotestrue %If this paper does NOT have notes
+\Notesname{Notes for Practice} %If this is a Research Paper
+%\Notesname{Notes for Research} %If this is a Practitioner Paper
+
+
+\note{This is an example of a note to practice or research.}
+\note{This is a second example of a note to practice or research.}
+\note{This is a third example of a note to practice or research.} %Add more notes if necesary
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\Abstract{Abstracts shall not exceed 200 words. Do not use a heading for the abstract or headings within the abstract.\\ \lipsum[1]~}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\flushbottom % Makes all text pages the same height
+
+\maketitle % Print the title and abstract box
+
+%\tableofcontents % Print the contents section
+
+\thispagestyle{fancy} % Add header to first page
+
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE CONTENTS
+%----------------------------------------------------------------------------------------
+
+\section{Introduction} % The \section*{} command stops section numbering
+
+\addcontentsline{toc}{section}{Introduction} % Adds this section to the table of contents
+Access to computing education remains deeply unequal, and out-of-school programs have become an important way to reach children in under-resourced communities. Many of these programs rely on volunteer tutors, who often have programming experience but little or no training in teaching [CITE]. Although this model expands access, it also depends on a limited and constantly changing pool of tutors.
+
+These programs commonly introduce children to computational thinking through hands-on programming activities. Rather than emphasizing syntax, they focus on concepts such as sequencing, conditionals, loops, and problem solving, often using visual programming environments that make programming more accessible to beginners [CITE].
+
+During block-based programming activities such as Scratch, children often need help at the same time. With only a few volunteers available, providing timely one-on-one support becomes difficult. As children wait for help, they may lose focus or become frustrated. Frequent volunteer turnover also limits continuity, as the teaching experience leaves with the volunteers.
+
+Large language model (LLM) tutors offer a potential way to reduce this burden, and recent work has explored their use in programming education [CITE]. However, most studies evaluate LLM tutors as substitutes for teachers, focusing on learning outcomes in controlled or well-resourced settings. Much less is known about their role as a support tool in volunteer-led, out-of-school computing programs, where they can handle routine help requests and allow volunteers to focus on children who need more personalized guidance. It is also unclear how such tutors should be designed for settings characterized by frequent volunteer turnover and no integration with the programming environment.
+
+
+\section{Literature Review}
+
+
+%------------------------------------------------
+\section{Design of the tutor}
+Bit is a conversational tutor designed to support children learning Scratch. Rather than acting as a general-purpose programming assistant, it provides focused guidance that encourages children to reason about their programs instead of simply receiving answers. Its design is guided by four principles.
+
+\textbf{Exercise-bounded interaction.} Children begin by choosing a single activity
+from the exercise catalog (Figure~\ref{fig:exercises}), and Bit supports one
+programming exercise at a time. Each exercise defines the learning objective, the
+computational thinking concepts to be practiced, and a reference solution.
+Restricting conversations to the current activity keeps the tutor focused, reduces
+off-topic interactions, and aligns its responses with the intended learning
+objectives.
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{exercises.png}
+\caption{Exercise selection screen, with challenges grouped by category. Translated
+from Spanish.}
+\label{fig:exercises}
+\end{figure}
+
+
+
+\textbf{Progressive scaffolding.} Bit follows a gradual scaffolding strategy inspired by human tutoring. Instead of immediately providing answers, it encourages children to explain their reasoning or predict the behavior of a Scratch block, as presented in Figure \ref{fig:progressive}. If needed, the tutor offers progressively more explicit hints, introducing the relevant Scratch block only as a final step. The reference solution guides this process but is never shown to the learner.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\columnwidth]{hint1.png}
+\caption{Bit's interface providing progressive scaffolding. Translated from Spanish.}
+\label{fig:progressive}
+\end{figure}
+
+
+\textbf{Structured responses with validated Scratch blocks.} Each response
+includes a short message, optional Scratch block suggestions.  Suggested blocks are checked against the official Scratch block catalog before
+being displayed, ensuring that only valid Scratch blocks are presented  (See Figure \ref{fig:ui})
+
+\textbf{Child-friendly interaction.} To reduce typing effort, Bit combines
+free-text input with two or three context-aware quick replies. Children can
+select one of these suggestions or continue the conversation by typing freely. (See Figure \ref{fig:ui})
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.6\columnwidth]{block and hints.png}
+\caption{Bit's interface in the \emph{hint} phase: a visual block
+card, and child-facing reply options. Translated from Spanish.}
+\label{fig:ui}
+\end{figure}
+
+
+\section{ Research Questions and Methodology}
+
+We investigate how an LLM tutor can serve as a support tool in a volunteer-run after-school computing program. Specifically, we ask: (RQ1) To what extent can the tutor autonomously handle children's help requests that would otherwise require volunteer support? (RQ2) What patterns of task completion and abandonment emerge across programming exercises? (RQ3) Which interaction features distinguish completed from abandoned sessions? (RQ4) Exploratorily, how does the tutor scaffold novice programmers, and how does operating independently of the Scratch environment constrain that support? We address RQ1–RQ3 through interaction logs and RQ4 through qualitative coding triangulated with field observations.
+
+
+%------------------------------------------------
+\subsection{Context and Participants}
+\label{sec:context}
+
+The study was conducted in a volunteer-run after-school computing program
+serving a low-income community (program and location blinded for review).
+The study protocol was approved by the ethics committee of [blinded].
+Parental consent and child assent were obtained for all participants.
+
+Each session was led by one volunteer instructor supported by two or three
+assistant volunteers. All volunteers were university students with prior
+programming experience but no formal training in education. Together they
+supported the entire group, resulting in child-to-tutor ratios that limited
+the amount of individual support available.
+
+A total of 25 children aged 10--13 participated across three sessions
+(Table~\ref{tab:demographics}). The cohort comprised 15 boys and 10 girls,
+with most participants aged 10 or 11. 
+\begin{table}[t]
+\centering
+\caption{Demographic breakdown of the 25 children who participated in the data collection phase.}
+\label{tab:demographics}
+\begin{tabular}{llr@{\hspace{2.5em}}llr}
+\toprule
+Attribute & Item & Freq & Attribute & Item & Freq \\
+\midrule
+Age & 10 & 6  & Gender & Male          & 15 \\
+    & 11 & 11 &        & Female        & 10 \\
+    & 12 & 6  &        & Non-specified & 0  \\
+    & 13 & 2  &        &               &    \\
+\midrule
+\textbf{Total students} & & \textbf{25} & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Data Collection}
+\label{sec:data}
+
+Data were collected over three consecutive Saturday sessions from 9:00 to
+12:00 at [blinded]. Each session began with a whole-group introduction to a
+programming topic led by the lead volunteer. Children then worked
+individually on two Scratch exercises while assistant volunteers circulated
+to provide support. During this independent practice, children could ask Bit
+(Section~\ref{sec:design}) whenever they needed help. Thus, instruction was
+provided by the human volunteers, with Bit serving as an on-demand support
+tutor rather than the primary instructor.
+
+Before interacting with Bit, children completed an in-app assent screen
+stating, in age-appropriate language, that Bit is a computer program, that
+their conversations would be reviewed by the teacher, and that participation
+was voluntary. This complemented the written parental consent and child
+assent obtained before the study.
+
+We collected two complementary data sources. First, \emph{interaction logs}
+record every child and tutor message with its role, timestamp, active
+exercise, and, for tutor responses, pedagogical metadata (dialogue phase and
+suggested Scratch blocks). At the session level, the system records the
+start and end time, session status (\emph{active}, \emph{closed}, or
+\emph{abandoned}), and the child's end-of-session satisfaction rating on a
+five-point emoji scale. A session was marked as \emph{closed} only after a
+volunteer verified the child's solution in Scratch. In total, we analyzed
+[81, revisar!!!!] sessions comprising approximately [2,000, revisar!!!]
+messages across 4 exercises.
+
+Second, researchers completed structured observation sheets during each
+session, [cuantas se obtuvieron] recording children's engagement, observed difficulties, volunteer
+interventions, and reasons for task abandonment. These observations were
+used to interpret behaviors that could not be explained from the interaction logs alone.
+\section{Results}
+\begin{table}[ht]
+\centering
+\caption{Overview of the interaction data. Per-session values are mean\,$\pm$\,SD.}
+\label{tab:corpus}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lr@{\hskip 1.5em}lr@{\hskip 1.5em}lr}
+\toprule
+\multicolumn{2}{l}{\textit{Data totals}} &
+\multicolumn{2}{l}{\textit{Per session}} &
+\multicolumn{2}{l}{\textit{Outcomes}} \\
+\cmidrule(r){1-2}\cmidrule(r){3-4}\cmidrule(r){5-6}
+Children    & -- & Turns          & -- & Closed \%      & -- \\
+Sessions    & -- & Messages       & -- & Abandoned \%   & -- \\
+Messages    & -- & Questions      & -- & Active \%      & -- \\
+Child msg.  & -- & Duration (min) & -- & Satisf. (1--5) & -- \\
+Bit msg.    & -- & Blocks sugg.   & -- &                &    \\
+Exercises   & -- &                &    &                &    \\
+\bottomrule
+\end{tabular}
+\end{table}
+\section{Discussion}
+
+\section{Conclusion}
+%------------------------------------------------
+\phantomsection
+\section*{Acknowledgments} % The \section*{} command stops section numbering
+
+%----------------------------------------------------------------------------------------
+%	REFERENCE LIST
+%----------------------------------------------------------------------------------------
+\phantomsection
+
+\printbibliography 
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
